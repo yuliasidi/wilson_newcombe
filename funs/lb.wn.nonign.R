@@ -1,5 +1,7 @@
-lb.wn.nonign <- function(z, qhat, n, b, w, M, N){
- (qhat + z^2/(2*n) - sqrt( qhat*z^2/n + (z/(2*n))^2 + z^2*((1 + 1/M)*b + (1 - 1/N)*w)
-                           )
- )/(1 + z^2/n)
+lb.wn.nonign <- function(z, qhat, nobs, rn, sn){
+  (2*qhat + z^2/nobs + z^2*rn/nobs + z^2*sn/nobs)/(2*(1 + z^2/nobs + z^2*rn/nobs + z^2*sn/nobs)) - 
+    sqrt(
+      (2*qhat + z^2/nobs + z^2*rn/nobs + z^2*sn/nobs)^2/(2*(1 + z^2/nobs + z^2*rn/nobs + z^2*sn/nobs))^2 -
+        qhat^2/(1 + z^2/nobs + z^2*rn/nobs + z^2*sn/nobs)
+    )
 }
