@@ -77,8 +77,8 @@ x2.1<-x1.1%>%
                 wald.p.inc = ifelse(pc<=ub.wald & pc>=lb.wald,1,0),
                 wn.ci.l = ub.wn - lb.wn,
                 wald.ci.l = ub.wald - lb.wald)%>%
-  dplyr::summarise(wn.cov.rate = mean(wn.p.inc),
-                   wn.plug.cov.rate = mean(wn.plug.p.inc),
-                   wald.cov.rate = mean(wald.p.inc),
-                   wn.l = mean(wn.ci.l),
-                   wald.l = mean(wald.ci.l))
+  dplyr::summarise(wn.cov.rate = mean(wn.p.inc, na.rm = T),
+                   wn.plug.cov.rate = mean(wn.plug.p.inc, na.rm = T),
+                   wald.cov.rate = mean(wald.p.inc, na.rm = T),
+                   wn.l = mean(wn.ci.l, na.rm = T),
+                   wald.l = mean(wald.ci.l, na.rm = T))

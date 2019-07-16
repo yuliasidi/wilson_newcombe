@@ -14,11 +14,15 @@ dtfull.p2.create <- function(n, pc, pt, add.x = F){
     
     dtfull <- dtfull%>%
       split(.$trt)%>%
-      purrr::map_df(.f = function(x){
-        x%>%
-          dplyr::mutate(x.strong = case_when(y == 0 ~ rbinom(n = n, 1, prob = 0.6),
-                                             y == 1 ~ rbinom(n = n, 1, prob = 0.2)),
-                        x.weak = rbinom(n = n, 1, prob = 0.6))
+      purrr::map_df(.f = function(dx){
+        dx%>%
+          dplyr::mutate(x = case_when(y == 0 ~ rbinom(n = n, 1, prob = 0.6),
+                                      y == 1 ~ rbinom(n = n, 1, prob = 0.2)),
+                        x.desc = "strong")%>%
+          dplyr::bind_rows(dx%>%
+                             dplyr::mutate(x = rbinom(n = n, 1, prob = 0.6)),
+                           x.desc = "weak")
+                        
       }
         )
     
