@@ -3,23 +3,23 @@ library(purrr, warn.conflicts = F, quietly = T)
 library(tidyr, warn.conflicts = F, quietly = T)
 library(bin2mi, warn.conflicts = F, quietly = T)
 
-pc <- {{pc}}
-m2 <<- {{m2}}
+pc <- 0.65
+m2 <<- 0.1
 pt <- pc - m2
-n_obs <- {{n_obs}}
-do_rate <- {{do_rate}}
-num_n_mi <- {{num_n_mi}}
-num_m_mi <- {{num_m_mi}}
-set_n <- {{set_n}} 
+n_obs <- 500
+do_rate <- 0.1
+num_n_mi <- 2
+num_m_mi <- 100
+set_n <- 11 
 
-mp_y1 <- {{mp_y1}}
+mp_y1 <- 0.135
 
-mu_k <- {{mu_k}}
-sd_k <- {{sd_k}}
+mu_k <- 1.8
+sd_k <- 0.3
 
 
 x1 <- parallel::mclapply(X = 1:10000, 
-                         mc.cores = 24,
+                         mc.cores = 40,
                          FUN= function(x) 
                            
                          {

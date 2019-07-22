@@ -3,23 +3,23 @@ library(purrr, warn.conflicts = F, quietly = T)
 library(tidyr, warn.conflicts = F, quietly = T)
 library(bin2mi, warn.conflicts = F, quietly = T)
 
-pc <- {{pc}}
-m2 <<- {{m2}}
+pc <- 0.9
+m2 <<- 0.1
 pt <- pc - m2
-n_obs <- {{n_obs}}
-do_rate <- {{do_rate}}
-num_n_mi <- {{num_n_mi}}
-num_m_mi <- {{num_m_mi}}
-set_n <- {{set_n}} 
+n_obs <- 100
+do_rate <- 0.3
+num_n_mi <- 2
+num_m_mi <- 100
+set_n <- 8 
 
-mp_y1 <- {{mp_y1}}
+mp_y1 <- 0.325
 
-mu_k <- {{mu_k}}
-sd_k <- {{sd_k}}
+mu_k <- 1.4
+sd_k <- 0.1
 
 
 x1 <- parallel::mclapply(X = 1:10000, 
-                         mc.cores = 24,
+                         mc.cores = 10,
                          FUN= function(x) 
                            
                          {
@@ -217,5 +217,5 @@ if (check_ymean%>%all()){
  return(out)
 })
 
-saveRDS(x1, sprintf("results/p2_mnar_set_n%s.rds",
+saveRDS(x1, sprintf("results/p2_mnar_set_n%s_k2.rds",
                     set_n))
