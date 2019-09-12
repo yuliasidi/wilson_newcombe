@@ -9,14 +9,16 @@ source("funs/do_ch.R")
 source("funs/p2_eval_full.R")
 
 
+
 setting <- readRDS('setting.rds')
 set <- seq(1,16,1)
 
 
 p2_full <- map_df(set, .f = function(set_n){
   
-  x <- readRDS(sprintf("results/p2_mcar/p2_mcar_set_n%s.rds", set_n))
+  x0 <- readRDS(sprintf("results/p2_mcar/p2_mcar_set_n%s.rds", set_n))
   
+  x <- purrr::discard(x0, .p=function(x0) is.character(x0[[1]]))%>%head(10000)
   x1 <- p2_eval_full(x, m2 = setting$m2[setting$set_n==set_n])
   x2 <- x1%>%
     dplyr::mutate(set_n = set_n, 
@@ -52,7 +54,9 @@ set <- seq(1,16,1)
 
 #check target drop out rate
 do_rate_ch <- map_df(set, .f = function(set_n){
-  x <- readRDS(sprintf("results/p2_mcar/p2_mcar_set_n%s.rds", set_n))
+  x0 <- readRDS(sprintf("results/p2_mcar/p2_mcar_set_n%s.rds", set_n))
+  x <- purrr::discard(x0, .p=function(x0) is.character(x0[[1]]))%>%head(10000)
+  
   do_ch(x)%>%
     dplyr::mutate(set_n = set_n)
 })%>%
@@ -61,7 +65,9 @@ do_rate_ch <- map_df(set, .f = function(set_n){
   
 #check target group difference
 m2_est_ch <- map_df(set, .f = function(set_n){
-  x <- readRDS(sprintf("results/p2_mcar/p2_mcar_set_n%s.rds", set_n))
+  x0 <- readRDS(sprintf("results/p2_mcar/p2_mcar_set_n%s.rds", set_n))
+  x <- purrr::discard(x0, .p=function(x0) is.character(x0[[1]]))%>%head(10000)
+  
   m2_ch(x)%>%
     dplyr::mutate(set_n = set_n)
 })%>%
@@ -73,8 +79,9 @@ m2_est_ch <- map_df(set, .f = function(set_n){
 
 p2_mcar_eval <- map_df(set, .f = function(set_n){
   
-  x <- readRDS(sprintf("results/p2_mcar/p2_mcar_set_n%s.rds", set_n))
-
+  x0 <- readRDS(sprintf("results/p2_mcar/p2_mcar_set_n%s.rds", set_n))
+  x <- purrr::discard(x0, .p=function(x0) is.character(x0[[1]]))%>%head(10000)
+  
   x1 <- bin2mi::p2_eval(x, m2 = setting$m2[setting$set_n==set_n])
   x2 <- x1%>%
     dplyr::mutate(set_n = set_n, 
@@ -96,7 +103,9 @@ set <- seq(1,16,1)
 
 #check target drop out rate
 do_rate_ch <- map_df(set, .f = function(set_n){
-  x <- readRDS(sprintf("results/p2_mars/p2_mar_strong_set_n%s.rds", set_n))
+  x0 <- readRDS(sprintf("results/p2_mars/p2_mar_strong_set_n%s.rds", set_n))
+  x <- purrr::discard(x0, .p=function(x0) is.character(x0[[1]]))%>%head(10000)
+  
   do_ch(x)%>%
     dplyr::mutate(set_n = set_n)
 })%>%
@@ -105,7 +114,9 @@ do_rate_ch <- map_df(set, .f = function(set_n){
 
 #check target group difference
 m2_est_ch <- map_df(set, .f = function(set_n){
-  x <- readRDS(sprintf("results/p2_mars/p2_mar_strong_set_n%s.rds", set_n))
+  x0 <- readRDS(sprintf("results/p2_mars/p2_mar_strong_set_n%s.rds", set_n))
+  x <- purrr::discard(x0, .p=function(x0) is.character(x0[[1]]))%>%head(10000)
+  
   m2_ch(x)%>%
     dplyr::mutate(set_n = set_n)
 })%>%
@@ -117,7 +128,8 @@ m2_est_ch <- map_df(set, .f = function(set_n){
 
 p2_mars_eval <- map_df(set, .f = function(set_n){
   
-  x <- readRDS(sprintf("results/p2_mars/p2_mar_strong_set_n%s.rds", set_n))
+  x0 <- readRDS(sprintf("results/p2_mars/p2_mar_strong_set_n%s.rds", set_n))
+  x <- purrr::discard(x0, .p=function(x0) is.character(x0[[1]]))%>%head(10000)
   
   x1 <- bin2mi::p2_eval(x, m2 = setting$m2[setting$set_n==set_n])
   x2 <- x1%>%
@@ -140,7 +152,9 @@ set <- seq(1,16,1)
 
 #check target drop out rate
 do_rate_ch <- map_df(set, .f = function(set_n){
-  x <- readRDS(sprintf("results/p2_marw/p2_mar_weak_set_n%s.rds", set_n))
+  x0 <- readRDS(sprintf("results/p2_marw/p2_mar_weak_set_n%s.rds", set_n))
+  x <- purrr::discard(x0, .p=function(x0) is.character(x0[[1]]))%>%head(10000)
+  
   do_ch(x)%>%
     dplyr::mutate(set_n = set_n)
 })%>%
@@ -149,7 +163,9 @@ do_rate_ch <- map_df(set, .f = function(set_n){
 
 #check target group difference
 m2_est_ch <- map_df(set, .f = function(set_n){
-  x <- readRDS(sprintf("results/p2_marw/p2_mar_weak_set_n%s.rds", set_n))
+  x0 <- readRDS(sprintf("results/p2_marw/p2_mar_weak_set_n%s.rds", set_n))
+  x <- purrr::discard(x0, .p=function(x0) is.character(x0[[1]]))%>%head(10000)
+  
   m2_ch(x)%>%
     dplyr::mutate(set_n = set_n)
 })%>%
@@ -161,7 +177,8 @@ m2_est_ch <- map_df(set, .f = function(set_n){
 
 p2_marw_eval <- map_df(set, .f = function(set_n){
   
-  x <- readRDS(sprintf("results/p2_marw/p2_mar_weak_set_n%s.rds", set_n))
+  x0 <- readRDS(sprintf("results/p2_marw/p2_mar_weak_set_n%s.rds", set_n))
+  x <- purrr::discard(x0, .p=function(x0) is.character(x0[[1]]))%>%head(10000)
   
   x1 <- bin2mi::p2_eval(x, m2 = setting$m2[setting$set_n==set_n])
   x2 <- x1%>%
@@ -184,7 +201,9 @@ set <- seq(1,16,1)
 
 #check target drop out rate
 do_rate_ch <- map_df(set, .f = function(set_n){
-  x <- readRDS(sprintf("results/p2_mnar_new/p2_mnar_set_new_n%s.rds", set_n))
+  x0 <- readRDS(sprintf("results/p2_mnar/p2_mnar_set_n%s.rds", set_n))
+  x <- purrr::discard(x0, .p=function(x0) is.character(x0[[1]]))%>%head(10000)
+  
   do_ch(x)%>%
     dplyr::mutate(set_n = set_n)
 })%>%
@@ -193,7 +212,9 @@ do_rate_ch <- map_df(set, .f = function(set_n){
 
 #check target group difference
 m2_est_ch <- map_df(set, .f = function(set_n){
-  x <- readRDS(sprintf("results/p2_mnar_new/p2_mnar_set_new_n%s.rds", set_n))
+  x0 <- readRDS(sprintf("results/p2_mnar/p2_mnar_set_n%s.rds", set_n))
+  x <- purrr::discard(x0, .p=function(x0) is.character(x0[[1]]))%>%head(10000)
+  
   m2_ch(x)%>%
     dplyr::mutate(set_n = set_n)
 })%>%
@@ -203,9 +224,10 @@ m2_est_ch <- map_df(set, .f = function(set_n){
 
 p2_mnar_eval <- map_df(set, .f = function(set_n){
   
-  x <- readRDS(sprintf("results/p2_mnar_new/p2_mnar_set_new_n%s.rds", set_n))
+  x0 <- readRDS(sprintf("results/p2_mnar/p2_mnar_set_n%s.rds", set_n))
+  x <- purrr::discard(x0, .p=function(x0) is.character(x0[[1]]))%>%head(10000)
   
-  x1 <- bin2mi::p2_eval(mi_level = 2, x, m2 = setting$m2[setting$set_n==set_n])
+  x1 <- bin2mi::p2_eval(x, m2 = setting$m2[setting$set_n==set_n])
   x2 <- x1%>%
     dplyr::mutate(set_n = set_n, 
                   n_exc = purrr::keep(x, .p=function(x) is.character(x[[1]]))%>%
@@ -216,4 +238,56 @@ p2_mnar_eval <- map_df(set, .f = function(set_n){
 
 saveRDS(p2_mnar_eval, "summaries/p2_mnar_eval.rds")
 
+
+set <- seq(1,16,1)
+
+p2_mnar_ign_eval <- map_df(set, .f = function(set_n){
+  
+  x0 <- readRDS(sprintf("results/p2_mnar_ign/p2_mnar_ign_set_n%s.rds", set_n))
+  x <- purrr::discard(x0, .p=function(x0) is.character(x0[[1]]))%>%head(10000)
+  
+  x1 <- bin2mi::p2_eval(x, m2 = setting$m2[setting$set_n==set_n])
+  x2 <- x1%>%
+    dplyr::mutate(set_n = set_n, 
+                  n_exc = purrr::keep(x, .p=function(x) is.character(x[[1]]))%>%
+                    length()%>%
+                    as.numeric())
+})%>%
+  left_join(setting, by = 'set_n')
+
+saveRDS(p2_mnar_ign_eval, "summaries/p2_mnar_ign_eval.rds")
+
+p2_mnar_new_eval <- 
+  map_df(set, .f = function(set_n){
+    
+    x0 <- readRDS(sprintf("results/p2_mnar_new/p2_mnar_new_set_n%s.rds", set_n))
+    x <- purrr::discard(x0, .p=function(x0) is.character(x0[[1]]))%>%head(10000)
+    
+    x1 <- bin2mi::p2_eval(x, m2 = setting$m2[setting$set_n==set_n])
+    x2 <- x1%>%
+      dplyr::mutate(set_n = set_n, 
+                    n_exc = purrr::keep(x, .p=function(x) is.character(x[[1]]))%>%
+                      length()%>%
+                      as.numeric())
+  })%>%
+  left_join(setting, by = 'set_n')
+
+saveRDS(p2_mnar_new_eval, "summaries/p2_mnar_new_eval.rds")
+
+p2_mnar_new_ign_eval <-
+  map_df(set, .f = function(set_n){
+    
+    x0 <- readRDS(sprintf("results/p2_mnar_new_ign/p2_mnar_new_ign_set_n%s.rds", set_n))
+    x <- purrr::discard(x0, .p=function(x0) is.character(x0[[1]]))%>%head(10000)
+    
+    x1 <- bin2mi::p2_eval(x, m2 = setting$m2[setting$set_n==set_n])
+    x2 <- x1%>%
+      dplyr::mutate(set_n = set_n, 
+                    n_exc = purrr::keep(x, .p=function(x) is.character(x[[1]]))%>%
+                      length()%>%
+                      as.numeric())
+  })%>%
+  left_join(setting, by = 'set_n')
+
+saveRDS(p2_mnar_new_ign_eval, "summaries/p2_mnar_new_ign_eval.rds")
 

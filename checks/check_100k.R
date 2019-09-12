@@ -18,13 +18,38 @@ sum.prop1%>%
   dplyr::filter(mu.k==1.8, sd.k==0.3, n==100, pc==0.65, do==0.3)
 
 
+###############################################
+source("funs/m2_ch.R")
+source("funs/do_ch.R")
+
+setting <-readRDS("setting.rds")
+d10k <- readRDS("results/p2_mars/p2_mar_strong_set_n5.rds")
+d100k <- readRDS("results/p2_mcar/p2_mcar_set_n5_100k.rds")
+#d100km20 <- readRDS("results/p2_mcar/p2_mcar_set_n5_100k_m20.rds")
+
+do_ch(d10k)
+do_ch(d100k)
+
+
+m2_ch(d10k)
+m2_ch(d100k)
+
+bin2mi::p2_eval(d10k, m2 = setting$m2[setting$set_n==5])
+bin2mi::p2_eval(d100k, m2 = setting$m2[setting$set_n==5])
+#bin2mi::p2_eval(d100km20, m2 = setting$m2[setting$set_n==5])
+
+purrr::discard(d10k, .p=function(d10k) is.character(d10k[[1]]))%>%head(10000)
+purrr::keep(d100k, .p=function(d100k) is.character(d100k[[1]]))%>%length()
 
 ###############################################
 source("funs/m2_ch.R")
 source("funs/do_ch.R")
 
+setting <-readRDS("setting.rds")
 d10k <- readRDS("results/p2_mars/p2_mar_strong_set_n6.rds")
 d100k <- readRDS("results/p2_mars/p2_mar_strong_set_n6_100k.rds")
+#d100km20 <- readRDS("results/p2_mcar/p2_mcar_set_n5_100k_m20.rds")
+
 do_ch(d10k)
 do_ch(d100k)
 
@@ -34,7 +59,4 @@ m2_ch(d100k)
 
 bin2mi::p2_eval(d10k, m2 = setting$m2[setting$set_n==6])
 bin2mi::p2_eval(d100k, m2 = setting$m2[setting$set_n==6])
-
-purrr::keep(d10k, .p=function(d10k) is.character(d10k[[1]]))%>%length()
-purrr::keep(d100k, .p=function(d100k) is.character(d100k[[1]]))%>%length()
 
