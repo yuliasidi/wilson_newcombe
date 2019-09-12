@@ -4,22 +4,17 @@ library(tidyr, warn.conflicts = F, quietly = T)
 library(bin2mi, warn.conflicts = F, quietly = T)
 
 pc <- 0.9
-m2 <<- 0.1
+m2 <<- 0.025
 pt <- pc - m2
-n_obs <- 100
+n_obs <- 500
 do_rate <- 0.1
-num_n_mi <- 2
-num_m_mi <- 100
-set_n <- 4 
+num_n_mi <- 10
+set_n <- 10 
 
 mp_y1 <- 0.107
 
-mu_k <- 1.8
-sd_k <- 0.3
-
-
-x1 <- parallel::mclapply(X = 1:10000, 
-                         mc.cores = 7,
+x1 <- parallel::mclapply(X = 1:10100, 
+                         mc.cores = 20,
                          FUN= function(x) 
                            
                          {
@@ -128,7 +123,7 @@ if (check_ymean%>%all()){
    dt_mi <- 
      dtmiss%>%
      split(.$trt)%>%
-     purrr::map_df(mi, n_mi = num_n_mi, m_mi = num_m_mi, mu_k = mu_k, sd_k = sd_k, ym = 'y.m', .id='trt')
+     purrr::map_df(mi, n_mi = num_n_mi, .id='trt')
    
    #calculate estimate for difference in prorpotions and its variance terms
    dt_mi_est <- p2d_mi(dt_mi, m2 = m2)
@@ -137,28 +132,28 @@ if (check_ymean%>%all()){
    
    wald_mi <-
      dt_mi_est%>%
-     mi_comb(level=2, phat = 'phat_d', var_phat = 'var_d')%>%
+     mi_comb(level=1, phat = 'phat_d', var_phat = 'var_d')%>%
      dplyr::mutate(method = "wald",
-                   lower_bound = qbar - qnorm(0.975)*sqrt(t),
-                   upper_bound = qbar + qnorm(0.975)*sqrt(t))
+                   lower_bound = qbar - qt(0.975, v)*sqrt(t),
+                   upper_bound = qbar + qt(0.975, v)*sqrt(t))
    
    fm_mi <- 
      dt_mi_est%>%
-     mi_comb(level=2, phat = 'phat_d', var_phat = 'var_dr')%>%
+     mi_comb(level=1, phat = 'phat_d', var_phat = 'var_dr')%>%
      dplyr::mutate(method = "fm",
-                   lower_bound = qbar - qnorm(0.975)*sqrt(t),
-                   upper_bound = qbar + qnorm(0.975)*sqrt(t))
+                   lower_bound = qbar - qt(0.975, v)*sqrt(t),
+                   upper_bound = qbar + qt(0.975, v)*sqrt(t))
    
    wn_plug_pc <- 
      dt_mi_est%>%
-     mi_comb(level=2, phat = 'c_phat', var_phat = 'c_phat_var')%>%
+     mi_comb(level=1, phat = 'c_phat', var_phat = 'c_phat_var')%>%
      dplyr::mutate(method = "wn-plug for pc",
                    lower_bound = pmap_dbl(list(phat = qbar), lb_wn, z = qnorm(0.975), n_obs = n_obs),
                    upper_bound = pmap_dbl(list(phat = qbar), ub_wn, z = qnorm(0.975), n_obs = n_obs))
    
    wn_plug_pt <- 
      dt_mi_est%>%
-     mi_comb(level=2, phat = 't_phat', var_phat = 't_phat_var')%>%
+     mi_comb(level=1, phat = 't_phat', var_phat = 't_phat_var')%>%
      dplyr::mutate(method = "wn-plug for pt",
                    lower_bound = pmap_dbl(list(phat = qbar), lb_wn, z = qnorm(0.975), n_obs = n_obs),
                    upper_bound = pmap_dbl(list(phat = qbar), ub_wn, z = qnorm(0.975), n_obs = n_obs))
@@ -174,14 +169,14 @@ if (check_ymean%>%all()){
    
    wn_mi_pc <- 
      dt_mi_est%>%
-     mi_comb(level=2, phat = 'c_phat', var_phat = 'c_phat_var')%>%
+     mi_comb(level=1, phat = 'c_phat', var_phat = 'c_phat_var')%>%
      dplyr::mutate(method = "wn-mi for pc",
                    lower_bound = pmap_dbl(list(z = qt(0.975, df = v), qhat = qbar, rn = rn), lb_wn_ign, n_obs = n_obs),
                    upper_bound = pmap_dbl(list(z = qt(0.975, df = v), qhat = qbar, rn = rn), ub_wn_ign, n_obs = n_obs))
    
    wn_mi_pt <- 
      dt_mi_est%>%
-     mi_comb(level=2, phat = 't_phat', var_phat = 't_phat_var')%>%
+     mi_comb(level=1, phat = 't_phat', var_phat = 't_phat_var')%>%
      dplyr::mutate(method = "wn-mi for pt",
                    lower_bound = pmap_dbl(list(z = qt(0.975, df = v), qhat = qbar, rn = rn), lb_wn_ign, n_obs = n_obs),
                    upper_bound = pmap_dbl(list(z = qt(0.975, df = v), qhat = qbar, rn = rn), ub_wn_ign, n_obs = n_obs))
@@ -200,9 +195,7 @@ if (check_ymean%>%all()){
      bind_rows(wald_mi, fm_mi, wn_plug, wn_mi, 
                wn_plug_pc, wn_plug_pt, wn_mi_pc, wn_mi_pt)%>%
      dplyr::mutate(sim_id = x,
-                   set_n = set_n,
-                   mu_k = mu_k,
-                   sd_k = sd_k)
+                   set_n = set_n)
    
    out <- list(full_ci, do_check, mi_all)%>%
      purrr::set_names(c("full_ci", "do_check", "mi_all")) 
@@ -217,5 +210,5 @@ if (check_ymean%>%all()){
  return(out)
 })
 
-saveRDS(x1, sprintf("results/p2_mnar/p2_mnar_set_n%s.rds",
+saveRDS(x1, sprintf("results/p2_mnar_ign_set_n%s.rds",
                     set_n))

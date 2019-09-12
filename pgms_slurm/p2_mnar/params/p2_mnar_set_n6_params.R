@@ -3,20 +3,22 @@ library(purrr, warn.conflicts = F, quietly = T)
 library(tidyr, warn.conflicts = F, quietly = T)
 library(bin2mi, warn.conflicts = F, quietly = T)
 
-pc <- 0.65
-m2 <<- 0.1
+pc <- 0.9
+m2 <<- 0.025
 pt <- pc - m2
 n_obs <- 100
 do_rate <- 0.3
 num_n_mi <- 2
 num_m_mi <- 100
-set_n <- 7 
+set_n <- 6 
 
-mp_y1 <- 0.42
+mp_y1 <- 0.325
+
+sd_k <- 0.1
 
 
 x1 <- parallel::mclapply(X = 1:10000, 
-                         mc.cores = 7,
+                         mc.cores = 24,
                          FUN= function(x) 
                            
                          {
@@ -122,11 +124,16 @@ set.seed(13000*set_n + x)
 if (check_ymean%>%all()){
   
    #MI
-  
-  
 
-  mu_k <- tibble(mu_kc = (1-mean(dtmiss$r[dtmiss$trt=="c"]))/(1 - mean(dtmiss$r[dtmiss$trt=="c" & dtmiss$y==1])),
-                 mu_kt = (1-mean(dtmiss$r[dtmiss$trt=="t"]))/(1 - mean(dtmiss$r[dtmiss$trt=="t" & dtmiss$y==1]))) 
+  mu_k <- tibble(
+  mp_c = mean(dtmiss$r[dtmiss$trt=="c"]), #P(R=1)
+  mp_t = mean(dtmiss$r[dtmiss$trt=="t"]),
+  mp_y1_c = mean(dtmiss$r[dtmiss$trt=="c" & dtmiss$y==1]), #P(R=1|Y=1)
+  mp_y1_t = mean(dtmiss$r[dtmiss$trt=="t" & dtmiss$y==1]),
+  
+  mu_kc = (1 - mp_c)/(mp_c * (1 - mp_y1_c)) - (1 - mp_c)/mp_c,
+  mu_kt = (1 - mp_t)/(mp_t * (1 - mp_y1_t)) - (1 - mp_t)/mp_t)
+
    out <- list(mu_k)%>%
      purrr::set_names(c("mu_k")) 
  }
@@ -146,5 +153,5 @@ mi_par <-
   summarise_at(.vars = c('mu_kc','mu_kt'), .funs = c(mean, sd))%>%
   dplyr::mutate(set_n = set_n)
   
-saveRDS(x1, sprintf("results/p2_mnar_params/mi_par_n%s.rds",
+saveRDS(x1, sprintf("results/mi_par_n%s.rds",
                      set_n))

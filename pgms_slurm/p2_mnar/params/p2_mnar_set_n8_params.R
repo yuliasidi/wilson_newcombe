@@ -125,8 +125,15 @@ if (check_ymean%>%all()){
   
    #MI
 
-  mu_k <- tibble(mu_kc = (1-mean(dtmiss$r[dtmiss$trt=="c"]))/(1 - mean(dtmiss$r[dtmiss$trt=="c" & dtmiss$y==1])),
-                 mu_kt = (1-mean(dtmiss$r[dtmiss$trt=="t"]))/(1 - mean(dtmiss$r[dtmiss$trt=="t" & dtmiss$y==1]))) 
+  mu_k <- tibble(
+  mp_c = mean(dtmiss$r[dtmiss$trt=="c"]), #P(R=1)
+  mp_t = mean(dtmiss$r[dtmiss$trt=="t"]),
+  mp_y1_c = mean(dtmiss$r[dtmiss$trt=="c" & dtmiss$y==1]), #P(R=1|Y=1)
+  mp_y1_t = mean(dtmiss$r[dtmiss$trt=="t" & dtmiss$y==1]),
+  
+  mu_kc = (1 - mp_c)/(mp_c * (1 - mp_y1_c)) - (1 - mp_c)/mp_c,
+  mu_kt = (1 - mp_t)/(mp_t * (1 - mp_y1_t)) - (1 - mp_t)/mp_t)
+
    out <- list(mu_k)%>%
      purrr::set_names(c("mu_k")) 
  }
@@ -146,5 +153,5 @@ mi_par <-
   summarise_at(.vars = c('mu_kc','mu_kt'), .funs = c(mean, sd))%>%
   dplyr::mutate(set_n = set_n)
   
-saveRDS(x1, sprintf("results/p2_mnar_params/mi_par_n%s.rds",
+saveRDS(x1, sprintf("results/mi_par_n%s.rds",
                      set_n))

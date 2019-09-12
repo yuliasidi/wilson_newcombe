@@ -10,6 +10,7 @@ p2_mcar_eval <- readRDS("summaries/p2_mcar_eval_new.rds")
 p2_mars_eval <- readRDS("summaries/p2_mars_eval_new.rds")
 p2_marw_eval <- readRDS("summaries/p2_marw_eval_new.rds")
 p2_mnar_eval <- readRDS("summaries/p2_mnar_eval_final.rds")
+p2_mnar_ign_eval <- readRDS('summaries/p2_mnar_new_ign_eval.rds')
 
 ############################################################
 ### Coverage rate/width for fully observed data - tables ###
@@ -106,3 +107,20 @@ p2_mnar_wid <-
 pdf("plots/forpaper/p2_mnar_wid.pdf")
 p2_mnar_wid
 dev.off()
+
+
+#####################################################
+## Coverage table for MNAR ign vs nonign for wn-mi ##
+#####################################################
+print(
+  xtable::xtable(p2_mnar_eval%>%
+                   select(method, set_n, mean_cov)%>%
+                   left_join(p2_mnar_new_ign_eval%>%
+                               select(method, set_n,mean_cov, pc, m2, do_rate
+                                      ,n_obs)%>%
+                               rename(mean_coving = mean_cov), by = c('method', 'set_n'))%>%
+                   mutate(diff = mean_cov - mean_coving)%>%
+                   filter(method == "wn-mi")%>%
+                   select(pc, m2, n_obs, do_rate, mean_cov, mean_coving, diff), digits = c(0,2,3,0,2,4,4,4)), 
+  include.rownames=FALSE)
+
