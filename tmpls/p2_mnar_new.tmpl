@@ -14,11 +14,12 @@ set_n <- {{set_n}}
 
 mp_y1 <- {{mp_y1}}
 
-sd_k <- 0.1
+mu_k <- {{mu_k}}
+sd_k <- {{sd_k}}
 
 
-x1 <- parallel::mclapply(X = 1:10000, 
-                         mc.cores = 24,
+x1 <- parallel::mclapply(X = 1:10100, 
+                         mc.cores = 20,
                          FUN= function(x) 
                            
                          {
@@ -49,29 +50,19 @@ set.seed(13000*set_n + x)
  ########################################
  
  #impose MNAR
- dtmiss <- 
-   dtfull%>%
-   tidyr::nest(-trt)%>%
-   dplyr::mutate(mp_y1_val = mp_y1,
-                 mp_y0_val = ifelse(trt == 'c',
-                                mp_y0(do_tar = do_rate, mp_y1 = mp_y1, p_y1 = pc),
-                                mp_y0(do_tar = do_rate, mp_y1 = mp_y1, p_y1 = pt)))%>%
-   dplyr::mutate(data_m = purrr::pmap(list(data, mp_y1_val, mp_y0_val),
-                                      .f = function(x, mp_y1_val, mp_y0_val){
-     x%>%
-       dplyr::filter(y == 1)%>%
-       dplyr::mutate(r = rbinom(n(), 1, mp_y1_val))%>%
-       dplyr::bind_rows(
-         x%>%
-           dplyr::filter(y == 0)%>%
-           dplyr::mutate(r = rbinom(n(), 1, mp_y0_val)))%>%
-       dplyr::mutate(
-         y.m = ifelse(r==1 ,NA_integer_ ,y)
-       )
-     
-   }))%>%
-   dplyr::select(-c(data, mp_y1_val, mp_y0_val))%>%
-   tidyr::unnest()
+mp_y0_val <- mp_y0(do_tar = do_rate, mp_y1 = mp_y1, p_y1 = pc)
+ dtmiss <- dtfull%>%mutate(r=0)
+
+  dtmiss[dtmiss$trt=='t', 'r'] <- stats::rbinom(sum(as.numeric(dtmiss$trt=='t')), 1, prob = do_rate)  
+   dtmiss[dtmiss$trt=='c' & dtmiss$y==1, 'r'] <- 
+     stats::rbinom(sum(as.numeric(dtmiss$trt=='c' & dtmiss$y==1)), 1, prob = mp_y1)
+   dtmiss[dtmiss$trt=='c' & dtmiss$y==0, 'r'] <- 
+     stats::rbinom(sum(as.numeric(dtmiss$trt=='c' & dtmiss$y==0)), 1, prob = mp_y0_val)
+  
+ dtmiss <- dtmiss%>%
+   dplyr::mutate(
+     y.m = ifelse(r==1 ,NA_integer_ ,y)
+   )
   
  #check do rate
  do_check <- dtmiss%>%
@@ -87,29 +78,19 @@ set.seed(13000*set_n + x)
    del_seq <- del_seq + 1
    set.seed(1234*del_seq)
    
-   dtmiss <- 
-     dtfull%>%
-     tidyr::nest(-trt)%>%
-     dplyr::mutate(mp_y1_val = mp_y1,
-                   mp_y0_val = ifelse(trt == 'c',
-                                      mp_y0(do_tar = do_rate, mp_y1 = mp_y1, p_y1 = pc),
-                                      mp_y0(do_tar = do_rate, mp_y1 = mp_y1, p_y1 = pt)))%>%
-     dplyr::mutate(data_m = purrr::pmap(list(data, mp_y1_val, mp_y0_val),
-                                        .f = function(x, mp_y1_val, mp_y0_val){
-                                          x%>%
-                                            dplyr::filter(y == 1)%>%
-                                            dplyr::mutate(r = rbinom(n(), 1, mp_y1_val))%>%
-                                            dplyr::bind_rows(
-                                              x%>%
-                                                dplyr::filter(y == 0)%>%
-                                                dplyr::mutate(r = rbinom(n(), 1, mp_y0_val)))%>%
-                                            dplyr::mutate(
-                                              y.m = ifelse(r==1 ,NA_integer_ ,y)
-                                            )
-                                          
-                                        }))%>%
-     dplyr::select(-c(data, mp_y1_val, mp_y0_val))%>%
-     tidyr::unnest()
+   mp_y0_val <- mp_y0(do_tar = do_rate, mp_y1 = mp_y1, p_y1 = pc)
+   dtmiss <- dtfull%>%mutate(r=0)
+   
+   dtmiss[dtmiss$trt=='t', 'r'] <- stats::rbinom(sum(as.numeric(dtmiss$trt=='t')), 1, prob = do_rate)  
+   dtmiss[dtmiss$trt=='c' & dtmiss$y==1, 'r'] <- 
+     stats::rbinom(sum(as.numeric(dtmiss$trt=='c' & dtmiss$y==1)), 1, prob = mp_y1)
+   dtmiss[dtmiss$trt=='c' & dtmiss$y==0, 'r'] <- 
+     stats::rbinom(sum(as.numeric(dtmiss$trt=='c' & dtmiss$y==0)), 1, prob = mp_y0_val)
+   
+   dtmiss <- dtmiss%>%
+     dplyr::mutate(
+       y.m = ifelse(r==1 ,NA_integer_ ,y)
+     )
    
    
  }
@@ -124,19 +105,16 @@ set.seed(13000*set_n + x)
 if (check_ymean%>%all()){
   
    #MI
-  mu_kc <- (1-mean(dtmiss$r[dtmiss$trt=="c"]))/(1 - mean(dtmiss$r[dtmiss$trt=="c" & dtmiss$y==1]))
-  mu_kt <- (1-mean(dtmiss$r[dtmiss$trt=="t"]))/(1 - mean(dtmiss$r[dtmiss$trt=="t" & dtmiss$y==1]))
-  
    dt_mi <- 
      bind_rows(dtmiss%>%
-                 filter(trt=='c')%>%
-                 mi(n_mi = num_n_mi, m_mi = num_m_mi, mu_k = mu_kc, sd_k = sd_k, ym = 'y.m')%>%
-                 dplyr::mutate(trt='c'),
+                 dplyr::filter(trt=='c')%>%
+                 mi(n_mi = num_n_mi, m_mi = num_m_mi, mu_k = mu_k, sd_k = sd_k)%>%
+                 dplyr::mutate(trt = 'c'),
                dtmiss%>%
-                 filter(trt=='t')%>%
-                 mi(n_mi = num_n_mi, m_mi = num_m_mi, mu_k = mu_kt, sd_k = sd_k, ym = 'y.m')%>%
-                 dplyr::mutate(trt='t'))
-   
+                 dplyr::filter(trt=='t')%>%
+                 mi(n_mi = num_n_mi, m_mi = num_m_mi, mu_k = 1, sd_k = 0)%>%
+                 dplyr::mutate(trt = 't'))
+ 
    #calculate estimate for difference in prorpotions and its variance terms
    dt_mi_est <- p2d_mi(dt_mi, m2 = m2)
    
@@ -146,15 +124,15 @@ if (check_ymean%>%all()){
      dt_mi_est%>%
      mi_comb(level=2, phat = 'phat_d', var_phat = 'var_d')%>%
      dplyr::mutate(method = "wald",
-                   lower_bound = qbar - qnorm(0.975)*sqrt(t),
-                   upper_bound = qbar + qnorm(0.975)*sqrt(t))
+                   lower_bound = qbar - qt(0.975, v)*sqrt(t),
+                   upper_bound = qbar + qt(0.975, v)*sqrt(t))
    
    fm_mi <- 
      dt_mi_est%>%
      mi_comb(level=2, phat = 'phat_d', var_phat = 'var_dr')%>%
      dplyr::mutate(method = "fm",
-                   lower_bound = qbar - qnorm(0.975)*sqrt(t),
-                   upper_bound = qbar + qnorm(0.975)*sqrt(t))
+                   lower_bound = qbar - qt(0.975, v)*sqrt(t),
+                   upper_bound = qbar + qt(0.975, v)*sqrt(t))
    
    wn_plug_pc <- 
      dt_mi_est%>%
@@ -208,8 +186,7 @@ if (check_ymean%>%all()){
                wn_plug_pc, wn_plug_pt, wn_mi_pc, wn_mi_pt)%>%
      dplyr::mutate(sim_id = x,
                    set_n = set_n,
-                   mu_kc = mu_kc,
-                   mu_kt = mu_kt,
+                   mu_k = mu_k,
                    sd_k = sd_k)
    
    out <- list(full_ci, do_check, mi_all)%>%
@@ -225,5 +202,5 @@ if (check_ymean%>%all()){
  return(out)
 })
 
-saveRDS(x1, sprintf("results/p2_mnar_set_new_n%s.rds",
+saveRDS(x1, sprintf("results/p2_mnar_new_set_n%s.rds",
                     set_n))

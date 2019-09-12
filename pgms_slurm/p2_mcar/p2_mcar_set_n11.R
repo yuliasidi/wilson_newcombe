@@ -12,8 +12,8 @@ num_n_mi <- 10
 set_n <- 11
 
 
-x1 <- parallel::mclapply(X = 1:10000, 
-                         mc.cores = 10,
+x1 <- parallel::mclapply(X = 1:10100, 
+                         mc.cores =24,
                          FUN= function(x) 
                            
                          {
@@ -91,7 +91,7 @@ if (mean(dtmiss$y.m[dtmiss$r==0 & dtmiss$trt=='c']) < 1 &
     dt_mi <- 
     dtmiss%>%
     split(.$trt)%>%
-    purrr::map_df(mi, n_mi = num_n_mi, ym = 'y.m', .id='trt')
+    purrr::map_df(mi, n_mi = num_n_mi, .id='trt')
     
     #calculate estimate for difference in prorpotions and its variance terms
     dt_mi_est <- p2d_mi(dt_mi, m2 = m2)
@@ -102,15 +102,15 @@ if (mean(dtmiss$y.m[dtmiss$r==0 & dtmiss$trt=='c']) < 1 &
     dt_mi_est%>%
     mi_comb(level=1, phat = 'phat_d', var_phat = 'var_d')%>%
     dplyr::mutate(method = "wald",
-                  lower_bound = qbar - qnorm(0.975)*sqrt(t),
-                  upper_bound = qbar + qnorm(0.975)*sqrt(t))
+                  lower_bound = qbar - qt(0.975, v)*sqrt(t),
+                  upper_bound = qbar + qt(0.975, v)*sqrt(t))
     
     fm_mi <- 
     dt_mi_est%>%
     mi_comb(level=1, phat = 'phat_d', var_phat = 'var_dr')%>%
     dplyr::mutate(method = "fm",
-                  lower_bound = qbar - qnorm(0.975)*sqrt(t),
-                  upper_bound = qbar + qnorm(0.975)*sqrt(t))
+                  lower_bound = qbar - qt(0.975, v)*sqrt(t),
+                  upper_bound = qbar + qt(0.975, v)*sqrt(t))
     
     wn_plug_pc <- 
     dt_mi_est%>%
