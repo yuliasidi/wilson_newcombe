@@ -1,5 +1,5 @@
 
-set <- seq(1,16,1)
+set <- seq(1,24,1)
 
 tt <- map_df(set, .f = function(set_n){
   

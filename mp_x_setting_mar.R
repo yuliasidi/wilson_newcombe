@@ -34,7 +34,7 @@ set2 <- setting%>%
 
 
 set2%>%
-  mutate(mp_x0_val = pmap_dbl(as.list(set1), mp_x0, xs_ass = 'weak'))
+  mutate(mp_x0_val = pmap_dbl(as.list(set2), mp_x0, xs_ass = 'weak'))
 
 #check set2 for pt
 
@@ -55,3 +55,5 @@ setting_xmar <- setting%>%
                             x_desc = 'weak'))
 
 saveRDS(setting_xmar, "setting_xmar.rds")
+
+

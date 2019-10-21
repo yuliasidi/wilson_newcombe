@@ -8,11 +8,11 @@ source('funs/neff_li.R')
 p2_mcar_eval <- readRDS("summaries/p2_mcar_eval.rds")
 p2_mars_eval <- readRDS("summaries/p2_mars_eval.rds")
 p2_marw_eval <- readRDS("summaries/p2_marw_eval.rds")
-p2_mnar_eval <- readRDS("summaries/p2_mnar_eval.rds")
+#p2_mnar_eval <- readRDS("summaries/p2_mnar_eval.rds")
 p2_mnar_new_eval <- readRDS("summaries/p2_mnar_new_eval.rds")
 
 setting <- readRDS('setting.rds')
-set <- seq(1,16,1)
+set <- seq(1,24,1)
 
 neff_mcar <- map_df(set, neff_li, path_res = 'p2_mcar/p2_mcar_set')%>%
   dplyr::mutate(method = 'li')
