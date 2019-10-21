@@ -6,7 +6,7 @@ library(bin2mi, warn.conflicts = F, quietly = T)
 setting <- readRDS('setting.rds')
 
 set1 <- setting%>%
-  dplyr::filter(n_obs==100)%>%
+  dplyr::filter(n_obs==50)%>%
   dplyr::rename(p_y1 = pc,
                 do_tar = do_rate)%>%
   dplyr::select(p_y1, do_tar)%>%
@@ -20,7 +20,7 @@ set1%>%
 
 #check set1 for pt
 set12 <- setting%>%
-  dplyr::filter(n_obs==100)%>%
+  dplyr::filter(n_obs==50)%>%
   dplyr::mutate(p_y1 = pc - m2)%>%
   dplyr::rename(do_tar = do_rate)%>%
   dplyr::select(p_y1, pc, do_tar)%>%

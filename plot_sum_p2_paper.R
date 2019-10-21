@@ -40,14 +40,14 @@ print(
 #############################################
 
 p2_mcar_cv <-
-  plot_cv_paper(p2_mcar_eval, c(0.89,.97))
+  plot_cv_paper(p2_mcar_eval%>%filter(n_obs!=50))
 
 pdf("plots/forpaper/p2_mcar_cv.pdf")
 p2_mcar_cv
 dev.off()
 
 p2_mcar_wid <-
-  plot_wid_paper(p2_mcar_eval)
+  plot_wid_paper(p2_mcar_eval%>%filter(n_obs!=50))
 
 pdf("plots/forpaper/p2_mcar_wid.pdf")
 p2_mcar_wid
@@ -59,14 +59,14 @@ dev.off()
 #############################################
 
 p2_mars_cv <-
-  plot_cv_paper(p2_mars_eval, lim = c(0.85,.981))
+  plot_cv_paper(p2_mars_eval%>%filter(n_obs!=50), lim = c(0.85,.981))
 
 pdf("plots/forpaper/p2_mars_cv.pdf")
 p2_mars_cv
 dev.off()
 
 p2_mars_wid <-
-  plot_wid_paper(p2_mars_eval)
+  plot_wid_paper(p2_mars_eval%>%filter(n_obs!=50))
 
 pdf("plots/forpaper/p2_mars_wid.pdf")
 p2_mars_wid
@@ -77,14 +77,14 @@ dev.off()
 #############################################
 
 p2_marw_cv <-
-  plot_cv_paper(p2_marw_eval, lim = c(0.88,.975))
+  plot_cv_paper(p2_marw_eval%>%filter(n_obs!=50), lim = c(0.88,.975))
 
 pdf("plots/forpaper/p2_marw_cv.pdf")
 p2_marw_cv
 dev.off()
 
 p2_marw_wid <-
-  plot_wid_paper(p2_marw_eval)
+  plot_wid_paper(p2_marw_eval%>%filter(n_obs!=50))
 
 pdf("plots/forpaper/p2_marw_wid.pdf")
 p2_marw_wid
@@ -95,14 +95,14 @@ dev.off()
 #############################################
 
 p2_mnar_cv <-
-  plot_cv_paper(p2_mnar_eval, lim = c(0.84, .96), bks = c(0.85, 0.9, 0.93, 0.95))
+  plot_cv_paper(p2_mnar_eval%>%filter(n_obs!=50), lim = c(0.84, .96), bks = c(0.85, 0.9, 0.93, 0.95))
 
 pdf("plots/forpaper/p2_mnar_cv.pdf")
 p2_mnar_cv
 dev.off()
 
 p2_mnar_wid <-
-  plot_wid_paper(p2_mnar_eval)
+  plot_wid_paper(p2_mnar_eval%>%filter(n_obs!=50))
 
 pdf("plots/forpaper/p2_mnar_wid.pdf")
 p2_mnar_wid
@@ -114,13 +114,16 @@ dev.off()
 #####################################################
 print(
   xtable::xtable(p2_mnar_eval%>%
+                   filter(n_obs!=50)%>%
                    select(method, set_n, mean_cov)%>%
-                   left_join(p2_mnar_new_ign_eval%>%
+                   left_join(p2_mnar_ign_eval%>%
+                               filter(n_obs!=50)%>%
                                select(method, set_n,mean_cov, pc, m2, do_rate
                                       ,n_obs)%>%
                                rename(mean_coving = mean_cov), by = c('method', 'set_n'))%>%
                    mutate(diff = mean_cov - mean_coving)%>%
                    filter(method == "wn-mi")%>%
+                   arrange(pc, m2, n_obs)%>%
                    select(pc, m2, n_obs, do_rate, mean_cov, mean_coving, diff), digits = c(0,2,3,0,2,4,4,4)), 
   include.rownames=FALSE)
 
