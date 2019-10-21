@@ -10,17 +10,17 @@ source("wn/funs/ub.wn.R")
 source("wn/funs/miss.cond.mnar.R")
 source("wn/funs/sf.count.R")
 
-pc <- 0.65
-nobs <- 100
+pc <- 0.90
+nobs <- 500
 num.n.mi <- 2
 num.m.mi <- 100
 
 
-do.rate <-0.3
-py1.cond <- 0.42
+do.rate <-0.1
+py1.cond <- 0.109
 
-mu.k <- 1.3
-sd.k <- 0.1
+mu.k <- 1.4
+sd.k <- 0.2
 
 library(parallel)
 cl <- makeCluster(Sys.getenv()["SLURM_NTASKS"], type = "MPI")

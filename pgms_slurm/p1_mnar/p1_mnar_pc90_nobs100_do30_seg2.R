@@ -31,7 +31,7 @@ system.time({
   
   x1 <- 
     parallel::clusterApply(cl,
-                           x = 1:10000, 
+                           x = 10001:30000, 
                            fun=function(x){
                              
  library(dplyr, warn.conflicts = F, quietly = T)
@@ -136,5 +136,5 @@ py0.cond <-
 })
 
 
-saveRDS(x1, sprintf("results/p1_mnar_pc%d_nobs%d_do%d_mu%s_sd%s.rds",
+saveRDS(x1, sprintf("results/p1_mnar_pc%d_nobs%d_do%d_mu%s_sd%s_seg2.rds",
                     round(100*pc,0), nobs, round(100*do.rate,0), mu.k, sd.k))
