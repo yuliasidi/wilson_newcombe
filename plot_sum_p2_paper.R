@@ -20,7 +20,8 @@ print(
                    select(method, mean_cov, set_n)%>%
                    tidyr::spread(key = "method", value = "mean_cov")%>%
                    left_join(setting, by = 'set_n')%>%
-                   select(pc, m2, n_obs, wald, wn), digits = c(0,2,2,0,4,4)), 
+                   select(pc, m2, n_obs, wald, wn) %>%
+                   arrange(pc, m2, n_obs), digits = c(0,2,3,0,4,4)), 
   include.rownames=FALSE)
 
 
@@ -29,7 +30,8 @@ print(
                    select(method, mean_length, set_n)%>%
                    tidyr::spread(key = "method", value = "mean_length")%>%
                    left_join(setting, by = 'set_n')%>%
-                   select(pc, m2, n_obs, wald, wn), digits = c(0,2,2,0,3,3)), 
+                   select(pc, m2, n_obs, wald, wn) %>%
+                   arrange(pc, m2, n_obs), digits = c(0,2,3,0,3,3)), 
   include.rownames=FALSE)
 
 
@@ -44,6 +46,13 @@ p2_mcar_cv <-
 
 pdf("plots/forpaper/p2_mcar_cv.pdf")
 p2_mcar_cv
+dev.off()
+
+p2_mcar_cv_n50 <-
+  plot_cv_paper(p2_mcar_eval)
+
+pdf("plots/forpaper/p2_mcar_cv_n50.pdf")
+p2_mcar_cv_n50 
 dev.off()
 
 p2_mcar_wid <-
